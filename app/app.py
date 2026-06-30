@@ -28,10 +28,11 @@ from src.models import load_model
 from src.escalation import recommend_escalation, generate_response, get_category_department
 
 # ── Constants ──────────────────────────────────────────────────────
-MODEL_PATH = MODEL_DIR.rstrip('/') + '/category_model.pkl'
-URGENCY_MODEL_PATH = MODEL_DIR.rstrip('/') + '/urgency_model.pkl'
-VECTORIZER_PATH = MODEL_DIR.rstrip('/') + '/tfidf_vectorizer.pkl'
-METADATA_PATH = MODEL_DIR.rstrip('/') + '/metadata.pkl'
+MODEL_PATH = os.path.join(MODEL_DIR, 'category_model.pkl')
+URGENCY_MODEL_PATH = os.path.join(MODEL_DIR, 'urgency_model.pkl')
+VECTORIZER_PATH = os.path.join(MODEL_DIR, 'tfidf_vectorizer.pkl')
+SCALER_PATH = os.path.join(MODEL_DIR, 'meta_scaler.pkl')
+METADATA_PATH = os.path.join(MODEL_DIR, 'metadata.pkl')
 
 URGENCY_COLORS = {
     "High": "#dc3545",
@@ -62,23 +63,23 @@ def load_models():
         cat_model = load_model(MODEL_PATH)
         urg_model = load_model(URGENCY_MODEL_PATH)
         vectorizer = load_model(VECTORIZER_PATH)
+        scaler = load_model(SCALER_PATH)
         try:
             metadata = load_model(METADATA_PATH)
         except Exception:
             metadata = {}
-        return cat_model, urg_model, vectorizer, metadata
+        return cat_model, urg_model, vectorizer, scaler, metadata
     except FileNotFoundError as e:
         st.error(f"Model file not found: {e}")
         st.info("Run `python3 src/train.py` first to train the models.")
-        return None, None, None, {}
+        return None, None, None, None, {}
     except Exception as e:
         st.error(f"Error loading models: {e}")
-        return None, None, None, {}
+        return None, None, None, None, {}
 
 
-def predict_complaint(text, cat_model, urg_model, vectorizer):
+def predict_complaint(text, cat_model, urg_model, vectorizer, scaler):
     """Run full prediction pipeline on a complaint text."""
-    # Clean
     cleaned = clean_text(text)
 
     # TF-IDF for category
@@ -96,9 +97,10 @@ def predict_complaint(text, cat_model, urg_model, vectorizer):
         'complaint_text': [text],
         'cleaned_text': [cleaned],
     }))
+    meta_scaled = scaler.transform(meta_df.values)
 
     from scipy.sparse import csr_matrix, hstack
-    urg_feats = hstack([tfidf_feats, csr_matrix(meta_df.values)])
+    urg_feats = hstack([tfidf_feats, csr_matrix(meta_scaled)])
 
     # Urgency prediction
     urg_pred = urg_model.predict(urg_feats)[0]
@@ -130,7 +132,7 @@ st.sidebar.markdown("---")
 
 model_info = st.sidebar.container()
 with model_info:
-    cat_model, urg_model, vectorizer, metadata = load_models()
+    cat_model, urg_model, vectorizer, scaler, metadata = load_models()
     if metadata:
         st.metric("Category Accuracy", f"{metadata.get('category_accuracy', 0):.1%}")
         st.metric("Urgency Accuracy", f"{metadata.get('urgency_accuracy', 0):.1%}")
@@ -186,12 +188,12 @@ st.markdown("---")
 should_predict = predict_btn or st.session_state.get('predict_trigger', False)
 
 if should_predict and complaint_text and len(complaint_text.strip()) > 10:
-    if cat_model is None:
+    if cat_model is None or scaler is None:
         st.error("Models not loaded. Run `python3 src/train.py` first.")
         st.stop()
 
     with st.spinner("Analyzing complaint..."):
-        result = predict_complaint(complaint_text, cat_model, urg_model, vectorizer)
+        result = predict_complaint(complaint_text, cat_model, urg_model, vectorizer, scaler)
 
     # ── Results display ────────────────────────────────────────────
     st.markdown("## 📊 Analysis Results")

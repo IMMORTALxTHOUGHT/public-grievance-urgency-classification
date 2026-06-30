@@ -4,7 +4,6 @@ Classification models for category and urgency prediction.
 Classes:
     CategoryClassifier: Multi-class logistic regression for complaint category
     UrgencyClassifier: Multi-class classifier for urgency level (High/Medium/Low)
-    CombinedClassifier: Multi-output model predicting both simultaneously
 """
 import numpy as np
 import pandas as pd
@@ -101,9 +100,10 @@ class UrgencyClassifier:
             )
         else:
             raise ValueError(f"Unknown model_type: {model_type}")
-        self.classes_ = [0, 1, 2]  # Low, Medium, High
+        self.classes_ = None
 
     def fit(self, X, y):
+        self.classes_ = np.unique(y)
         self.clf.fit(X, y)
         return self
 

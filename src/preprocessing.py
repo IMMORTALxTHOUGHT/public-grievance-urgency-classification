@@ -58,8 +58,6 @@ def assign_urgency(text: str) -> int:
     # High urgency triggers
     if high_count >= 1:
         return 2
-    if high_count >= 1 and medium_count >= 1:
-        return 2
     if exclamation_count >= 3:
         return 2
     if caps_ratio > 0.4 and len(text) > 50:

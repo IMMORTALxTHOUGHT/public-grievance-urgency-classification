@@ -27,10 +27,11 @@ class TestPreprocessing:
         result = clean_text("water    supply   issue")
         assert "  " not in result
 
-    def test_clean_text_none(self):
+    def test_clean_text_empty(self):
         assert clean_text("") == ""
-        # clean_text handles None by defaulting to ""
-        # Implementation should handle this gracefully
+
+    def test_clean_text_none(self):
+        assert clean_text(None) == ""
 
     def test_assign_urgency_high_keywords(self):
         text = "URGENT! No water supply. EMERGENCY! Please help immediately."
@@ -69,9 +70,11 @@ class TestFeatures:
         assert 'word_count' in meta.columns
         assert 'caps_ratio' in meta.columns
         assert 'exclamation_count' in meta.columns
-        assert 'urgent_keyword_count' in meta.columns
+        assert 'question_count' in meta.columns
         assert meta['exclamation_count'].iloc[0] == 3
         assert meta['caps_ratio'].iloc[0] > 0
+        assert meta['word_count'].iloc[0] == 8
+        assert meta['question_count'].iloc[0] == 0
 
     def test_empty_text_meta(self):
         df = pd.DataFrame({

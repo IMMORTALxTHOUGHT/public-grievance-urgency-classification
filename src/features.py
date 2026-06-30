@@ -16,7 +16,6 @@ from src.config import (
     TFIDF_MAX_FEATURES, TFIDF_NGRAM_RANGE, TEST_SIZE,
     RANDOM_STATE, MODEL_DIR,
 )
-from src.preprocessing import assign_urgency, urgency_score
 
 
 def build_tfidf(corpus, max_features=None, ngram_range=None):
@@ -47,8 +46,6 @@ def extract_meta_features(df: pd.DataFrame) -> pd.DataFrame:
         caps_ratio, exclamation_count, urgent_keyword_count,
         has_urgent_keyword, has_medium_keyword
     """
-    from src.config import HIGH_URGENCY_KEYWORDS, MEDIUM_URGENCY_KEYWORDS
-
     texts = df['complaint_text'].fillna('')
     cleaned = df.get('cleaned_text', texts)
 
@@ -62,25 +59,6 @@ def extract_meta_features(df: pd.DataFrame) -> pd.DataFrame:
     )
     features['exclamation_count'] = texts.str.count('!')
     features['question_count'] = texts.str.count(r'\?')
-
-    # Keyword counts
-    def count_high(text):
-        t = str(text).lower()
-        return sum(1 for kw in HIGH_URGENCY_KEYWORDS if kw in t)
-
-    def count_medium(text):
-        t = str(text).lower()
-        return sum(1 for kw in MEDIUM_URGENCY_KEYWORDS if kw in t)
-
-    features['urgent_keyword_count'] = texts.apply(count_high)
-    features['medium_keyword_count'] = texts.apply(count_medium)
-    features['has_urgent_keyword'] = (features['urgent_keyword_count'] > 0).astype(int)
-    features['has_medium_keyword'] = (features['medium_keyword_count'] > 0).astype(int)
-
-    # Combined ratio
-    features['keyword_density'] = (
-        features['urgent_keyword_count'] + features['medium_keyword_count']
-    ) / features['word_count'].replace(0, 1)
 
     # Fill NaN/Inf
     features = features.replace([np.inf, -np.inf], 0).fillna(0)

@@ -74,7 +74,7 @@ MEDIUM_URGENCY_KEYWORDS = [
 URL_PATTERN = re.compile(r'https?://\S+|www\.\S+')
 EMAIL_PATTERN = re.compile(r'\S+@\S+')
 PHONE_PATTERN = re.compile(r'\b\d{10}\b|\b\d{3}[-.]?\d{3}[-.]?\d{4}\b')
-REDACTED_PATTERN = re.compile(r'[X]+[0-9X]*[X]+')  # e.g., X0X7X0X8X5X5
+REDACTED_PATTERN = re.compile(r'\b[X]+[0-9X]*[X]+\b')  # e.g., X0X7X0X8X5X5
 SPECIAL_CHARS = re.compile(r'[^a-zA-Z\s]')
 MULTI_SPACE = re.compile(r'\s+')
 

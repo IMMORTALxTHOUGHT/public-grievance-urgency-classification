@@ -18,6 +18,8 @@ Citizens file millions of grievances to government portals. This system automate
 
 **Accuracy:** Category 95.6% | Urgency 99.4% (Logistic Regression)
 
+> **Note:** Urgency labels are generated from keyword rules, so the urgency model's high accuracy reflects learning those rules rather than independent urgency assessment. See [limitations](#limitations) for details.
+
 ---
 
 ##   Quick Start
@@ -53,7 +55,7 @@ streamlit run app/app.py
 │   ├── models.py             # Classifier classes (LR, RF)
 │   ├── train.py              # Full training pipeline
 │   └── escalation.py         # Escalation matrix (8×3)
-├── tests/                    # (placeholder)
+├── tests/                    # Unit tests (pytest)
 ├── requirements.txt
 ├── README.md
 └── REPORT.md                 # Full project report
@@ -130,6 +132,16 @@ streamlit run app/app.py
 | Viz | matplotlib, seaborn |
 | Data | pandas, numpy |
 | Source | CPGRAMS (Kaggle) |
+
+---
+
+##   Limitations
+
+1. **Urgency labels are rule-based** — not human-annotated. The urgency model learns to replicate keyword patterns rather than assess genuine urgency. Accuracy numbers reflect consistency with the rule system, not real-world triage performance.
+2. **Category imbalance** — Public Safety dominates (56%), minority categories have fewer training samples.
+3. **English-only** — Optimized for English; India has 22 official languages.
+4. **No temporal features** — Complaint age and re-filing patterns are not considered.
+5. **Data freshness** — Based on historical CPGRAMS data; emerging issues may differ.
 
 ---
 

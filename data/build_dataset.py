@@ -11,8 +11,8 @@ import pandas as pd
 import sys
 from pathlib import Path
 
-DATA_DIR = Path('/home/deep/.cache/kagglehub/datasets/ayushyajnik/government-of-india-grievance-report/versions/1')
-OUTPUT_DIR = Path('/home/deep/projects/P4/public_grievance_urgency_classification_system/data')
+DATA_DIR = Path.home() / '.cache' / 'kagglehub' / 'datasets' / 'ayushyajnik' / 'government-of-india-grievance-report' / 'versions' / '1'
+OUTPUT_DIR = Path(__file__).resolve().parent
 
 def load_category_mapping():
     """Load and build a mapping from any category code to top-level parent."""
