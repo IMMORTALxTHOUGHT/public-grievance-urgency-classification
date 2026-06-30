@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Data (raw CSVs are tracked separately, but data/ can be large)
+data/*.csv
+!data/sample_*.csv
+
+# Models (pickle files)
+models/*.pkl
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Hermes agent
+.hermes/
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Logs
+*.log
